@@ -1,7 +1,28 @@
 import json
 
+from datetime import datetime
+
 rubrica = {}
 
+def esporta_rubrica():
+    print('\n-- ESPORTA RUBRICA --')
+    if chiedi_conferma():
+        return
+
+    if rubrica_vuota():
+        return
+
+    oggi = datetime.now()
+    data = f'{oggi.day}/{oggi.month}/{oggi.year}'
+    nome_file = f'rubrica_esportata_{oggi.day}{oggi.month}{oggi.year}.txt'
+
+    with open(nome_file, 'w') as file:
+        file.write(f'RUBRICA - esportata il {data}\n')
+        file.write('=' * 40 + '\n')
+        for nome, numero in sorted(rubrica.items()):
+            file.write(f'{nome} - {numero}\n')
+
+    print(f'Rubrica esportata in {nome_file}!')
 
 def salva_rubrica():
     with open('rubrica.json', 'w') as file:
@@ -50,7 +71,7 @@ def chiedi_nome():
 
         return nome
 
-def chiedi_numero():
+def chiedi_numero(numero_attuale=None):
     while True:
         numero = input('Digita il numero: ').strip()
 
@@ -62,7 +83,7 @@ def chiedi_numero():
             print('Il numero è troppo corto.')
             continue
 
-        if numero in rubrica.values():
+        if numero in rubrica.values() and numero != numero_attuale:
             print('Questo numero è già in rubrica!')
             continue
 
@@ -173,7 +194,7 @@ def modifica_contatto():
 
     elif scelta_mod == '2':
 
-        nuovo_numero = chiedi_numero()
+        nuovo_numero = chiedi_numero(numero_attuale=rubrica[nome])
 
         rubrica[nome] = nuovo_numero
 
@@ -193,7 +214,8 @@ while True:
     print('3. Mostra tutti i contatti')
     print('4. Elimina contatto')
     print('5. Modifica contatto')
-    print('6. Esci')
+    print('6. Esporta rubrica')
+    print('7. Esci')
 
     try:
         scelta = int(input('Scelta: '))
@@ -212,7 +234,7 @@ while True:
     elif scelta == 5:
         modifica_contatto()
     elif scelta == 6:
+        esporta_rubrica()
+    elif scelta == 7:
         print('Arrivederci!')
         break
-    else:
-        print('Inserisci un numero valido!')
