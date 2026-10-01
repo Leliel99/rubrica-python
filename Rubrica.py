@@ -1,5 +1,7 @@
 import json
 
+import random
+
 from datetime import datetime
 
 rubrica = {}
@@ -205,6 +207,63 @@ def modifica_contatto():
     else:
         print('Scelta non valida.')
 
+def ordina_per_numero():
+    print('\n-- CONTATTI ORDINATI PER NUMERO --')
+    if chiedi_conferma():
+        return
+
+    if rubrica_vuota():
+        return
+
+    ordinati = sorted(rubrica.items(), key=lambda x: x[1])
+    for nome, numero in ordinati:
+        print(f'{nome} - {numero}')
+
+def mischia_rubrica():
+    print('\n-- MISCHIA RUBRICA --')
+    if chiedi_conferma():
+        return
+
+    if rubrica_vuota():
+        return
+
+    # Salva backup prima di mischare
+    with open('rubrica_backup.json', 'w') as file:
+        json.dump(rubrica, file)
+
+    nomi = list(rubrica.keys())
+    numeri = list(rubrica.values())
+    random.shuffle(numeri)
+
+    rubrica_mischiata = dict(zip(nomi, numeri))
+
+    print('Rubrica mischiata:')
+    for nome, numero in rubrica_mischiata.items():
+        print(f'{nome} - {numero}')
+
+    conferma = input('\nVuoi salvare la versione mischiata? (si/no) ')
+    if conferma.lower() == 'si':
+        rubrica.update(rubrica_mischiata)
+        salva_rubrica()
+        print('Rubrica mischiata salvata! Puoi ripristinarla con l\'opzione 10.')
+    else:
+        print('Nessuna modifica salvata.')
+
+def ripristina_rubrica():
+    print('\n-- RIPRISTINA RUBRICA --')
+    if chiedi_conferma():
+        return
+
+    try:
+        with open('rubrica_backup.json', 'r') as file:
+            dati = json.load(file)
+            rubrica.clear()
+            rubrica.update(dati)
+            salva_rubrica()
+            print('Rubrica ripristinata!')
+    except FileNotFoundError:
+        print('Nessun backup trovato. Mischia prima la rubrica.')
+
 carica_rubrica()
 
 while True:
@@ -215,7 +274,10 @@ while True:
     print('4. Elimina contatto')
     print('5. Modifica contatto')
     print('6. Esporta rubrica')
-    print('7. Esci')
+    print('7. Ordina per numero')
+    print('8. Mischia rubrica')
+    print('9. Ripristina rubrica originale')
+    print('0. Esci')
 
     try:
         scelta = int(input('Scelta: '))
@@ -236,5 +298,11 @@ while True:
     elif scelta == 6:
         esporta_rubrica()
     elif scelta == 7:
+        ordina_per_numero()
+    elif scelta == 8:
+        mischia_rubrica()
+    elif scelta == 9:
+        ripristina_rubrica()
+    elif scelta == 0:
         print('Arrivederci!')
         break

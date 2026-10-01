@@ -1,0 +1,5 @@
+rubrica.json
+__pycache__/
+.venv/
+*.pyc
+rubrica_backup.json
